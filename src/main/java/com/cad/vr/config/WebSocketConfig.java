@@ -2,6 +2,7 @@ package com.cad.vr.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 /**
@@ -10,6 +11,7 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
  * @Description: You Know
  * @Version 1.0
  */
+@EnableWebSocket
 @Configuration
 public class WebSocketConfig {
     @Bean

@@ -11,7 +11,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
  * @Description: You Know
  * @Version 1.0
  */
-@EnableWebSocket
 @SpringBootApplication
 public class Main {
     public static void main(String[] args) {

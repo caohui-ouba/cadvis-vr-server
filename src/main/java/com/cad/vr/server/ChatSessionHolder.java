@@ -43,7 +43,10 @@ public class ChatSessionHolder extends Thread {
                 //TODO send to all websocket clients and socket clients
                 String message = new String(msg, 0, len, StandardCharsets.UTF_8.name());
                 log.info("read end , msg : " + message);
-                ChatThreadManager.getInstance().broadcast(message.getBytes());
+                // It's a position
+                String[] positions = message.split(",");
+                String send = positions[positions.length - 2] + "," + positions[positions.length - 1];
+                ChatThreadManager.getInstance().broadcast(send.getBytes());
                 WebSocketChatManager.broadcast(message);
                 log.info(message);
             }
