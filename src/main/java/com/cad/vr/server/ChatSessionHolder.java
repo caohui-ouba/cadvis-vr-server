@@ -1,8 +1,12 @@
 package com.cad.vr.server;
 
+import com.cad.vr.bean.ClientEvent;
 import com.cad.vr.util.SpringUtil;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.gson.Gson;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.json.JSONParser;
 
 import java.io.*;
 import java.net.Socket;
@@ -22,6 +26,7 @@ public class ChatSessionHolder extends Thread {
     private String sessionId;
     // max bytes from clients
     private static final int MAX_BYTES = 1024;
+    private static final Gson gson = new Gson();
 
     public ChatSessionHolder(String sessionId, Socket socket) {
         this.socket = socket;
@@ -40,20 +45,22 @@ public class ChatSessionHolder extends Thread {
             while (!isInterrupted()) {
                 log.info("wait receive...");
                 int len = getBufferInput().read(msg);
-                //TODO send to all websocket clients and socket clients
                 String message = new String(msg, 0, len, StandardCharsets.UTF_8.name());
                 log.info("read end , msg : " + message);
-                // It's a position
+                // It's a  id,type,position.x,position.y
                 String[] positions = message.split(",");
-                String send = positions[positions.length - 2] + "," + positions[positions.length - 1];
-                ChatThreadManager.getInstance().broadcast(send.getBytes());
-                WebSocketChatManager.broadcast(message);
-                log.info(message);
+                int pLen = positions.length;
+                ClientEvent event = new ClientEvent(sessionId, positions[pLen - 3], positions[pLen - 2], positions[pLen - 1]);
+                String json  = gson.toJson(event);
+                ChatThreadManager.getInstance().broadcast(json.getBytes());
+                WebSocketChatManager.broadcast(json);
+                log.info(json);
             }
             ChatThreadManager.getInstance().remove(this.sessionId);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(String.format("client '%s' is disconnected !", this.sessionId));
             interrupt();
+            ChatThreadManager.getInstance().remove(this.sessionId);
         }
     }
 }
